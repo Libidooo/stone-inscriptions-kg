@@ -1,0 +1,40 @@
+{
+  "labels": {
+    "Inscription": "题记",
+    "Region": "地区",
+    "Period": "朝代分期",
+    "Class": "阶层标签",
+    "ClassType": "阶层类型",
+    "ClassUnit": "组织单位",
+    "Sect": "宗派",
+    "Subject": "造像题材",
+    "ReligionType": "宗教类型",
+    "Gender": "性别",
+    "MakeupType": "妆造类型",
+    "PracticeL1": "实践行为一级",
+    "PracticeL2": "实践行为二级",
+    "PracticeL3": "实践行为三级",
+    "WishL1": "祈愿内容一级",
+    "WishL2": "祈愿内容二级",
+    "WishL3": "祈愿内容三级",
+    "CauseL1": "造像原因一级",
+    "CauseL2": "造像原因二级",
+    "CauseL3": "造像原因三级"
+  },
+  "relationships": {
+    "LOCATED_IN": "位于",
+    "FROM_PERIOD": "所属朝代",
+    "HAS_CLASS": "阶层",
+    "HAS_TYPE": "阶层类型",
+    "HAS_UNIT": "组织单位",
+    "BELONGS_TO": "所属宗派",
+    "DEPICTS": "造像题材",
+    "HAS_RELIGION": "宗教类型",
+    "HAS_GENDER": "性别",
+    "HAS_MAKEUP": "妆造类型",
+    "HAS_SUBTYPE": "下级编码",
+    "HAS_PRACTICE": "实践行为",
+    "HAS_WISH": "祈愿内容",
+    "HAS_CAUSE": "造像原因"
+  }
+}

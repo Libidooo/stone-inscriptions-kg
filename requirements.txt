@@ -1,0 +1,10 @@
+# 石刻造像题记知识图谱 - Python 依赖
+# 注意：本机 Windows 应用控制策略会拦截 V 盘上的原生 DLL，
+#       因此请使用系统 Python（已装 pandas/openpyxl）而非项目内 venv。
+#   C:\Users\<user>\AppData\Local\Programs\Python\Python314\python.exe
+pandas>=2.0
+openpyxl>=3.1
+requests>=2.28      # 05_update_vows_neo4j.py 使用
+# 以下仅 MySQL 导入时需要（本机未装 MySQL 服务时可不装）
+pymysql>=1.1
+sqlalchemy>=2.0

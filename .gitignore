@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.deps/
+Thumbs.db
+.wrangler/
+data/config/db_local.json

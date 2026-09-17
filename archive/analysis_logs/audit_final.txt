@@ -1,0 +1,15 @@
+﻿python : Traceback (most recent call last):
+所在位置 行:1 字符: 1
++ python -c "
++ ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<string>", line 3, in <module>
+    print(f.read())
+          ~~~~~~^^
+  File "<frozen codecs>", line 325, in decode
+  File "C:\Users\<user>\AppData\Local\Programs\Python\Python314\Lib\encodings\utf_8_sig.py", line 69, in _buffer_decode
+    return codecs.utf_8_decode(input, errors, final)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte

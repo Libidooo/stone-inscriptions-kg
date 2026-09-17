@@ -1,0 +1,83 @@
+node {
+  diameter: 40px;
+  color: #999999;
+  border-color: #666666;
+  border-width: 1px;
+  font-size: 10px;
+  font-color: #333333;
+}
+
+// ═══ 核心实体：题记（小灰点，显示序号） ═══
+node.题记 {
+  diameter: 24px;
+  color: #c8cdd4;
+  border-color: #8a919c;
+  caption: '{id}';
+  font-size: 8px;
+}
+
+// ═══ 编码维度一级枢纽：大号胶囊，三色区分三个编码体系 ═══
+node.祈愿内容一级 {
+  diameter: 90px;
+  color: #7CFC9E;
+  border-color: #2E8B57;
+  border-width: 3px;
+  caption: '{name}';
+  font-size: 16px;
+  font-color: #14532d;
+}
+node.实践行为一级 {
+  diameter: 90px;
+  color: #FFB366;
+  border-color: #C06000;
+  border-width: 3px;
+  caption: '{name}';
+  font-size: 16px;
+  font-color: #5c2e00;
+}
+node.造像原因一级 {
+  diameter: 90px;
+  color: #C9A0FF;
+  border-color: #6C3FC5;
+  border-width: 3px;
+  caption: '{name}';
+  font-size: 16px;
+  font-color: #382153;
+}
+
+// ═══ 编码二/三级：小号胶囊（同体系色、逐级变浅变小） ═══
+node.祈愿内容二级 { diameter: 55px; color: #A8E6B8; border-color: #2E8B57; caption: '{name}'; font-size: 11px; }
+node.祈愿内容三级 { diameter: 40px; color: #D4F0DC; border-color: #7ab892; caption: '{name}'; font-size: 9px; }
+node.实践行为二级 { diameter: 55px; color: #FFD1A3; border-color: #C06000; caption: '{name}'; font-size: 11px; }
+node.实践行为三级 { diameter: 40px; color: #FFE7CC; border-color: #d69a55; caption: '{name}'; font-size: 9px; }
+node.造像原因二级 { diameter: 55px; color: #DFC8FF; border-color: #6C3FC5; caption: '{name}'; font-size: 11px; }
+node.造像原因三级 { diameter: 40px; color: #EFE4FF; border-color: #a487d6; caption: '{name}'; font-size: 9px; }
+
+// ═══ 基础维度枢纽：中号圆点 ═══
+node.地区     { diameter: 60px; color: #6EC6FF; border-color: #1976D2; caption: '{name}'; font-size: 13px; }
+node.朝代分期 { diameter: 60px; color: #FFDF6E; border-color: #B58900; caption: '{name}'; font-size: 13px; }
+node.宗派     { diameter: 50px; color: #FF8FA3; border-color: #C2185B; caption: '{name}'; font-size: 12px; }
+node.造像题材 { diameter: 50px; color: #9AD5CA; border-color: #00796B; caption: '{name}'; font-size: 12px; }
+node.宗教类型 { diameter: 45px; color: #F0A4C0; border-color: #880E4F; caption: '{name}'; font-size: 11px; }
+node.妆造类型 { diameter: 45px; color: #D7C9A7; border-color: #795548; caption: '{name}'; font-size: 11px; }
+node.阶层类型 { diameter: 45px; color: #B0C4DE; border-color: #4682B4; caption: '{name}'; font-size: 11px; }
+node.组织单位 { diameter: 40px; color: #C5D6E8; border-color: #5D8AA8; caption: '{name}'; font-size: 10px; }
+node.阶层标签 { diameter: 30px; color: #E2E8F0; border-color: #94A3B8; caption: '{name}'; font-size: 8px; }
+node.性别     { diameter: 35px; color: #E6E6FA; border-color: #7986CB; caption: '{name}'; font-size: 10px; }
+
+// ═══ 关系 ═══
+relationship {
+  color: #aaaaaa;
+  thickness: 1px;
+  font-size: 6px;
+  padding: 1px;
+}
+relationship.祈愿内容 { color: #2E8B57; thickness: 2px; }
+relationship.实践行为 { color: #C06000; thickness: 2px; }
+relationship.造像原因 { color: #6C3FC5; thickness: 2px; }
+relationship.下级编码 { color: #b0b0b0; thickness: 1px; }
+relationship.位于       { color: #1976D2; thickness: 1px; }
+relationship.所属朝代   { color: #B58900; thickness: 1px; }
+relationship.所属宗派   { color: #C2185B; thickness: 1px; }
+relationship.造像题材   { color: #00796B; thickness: 1px; }
+relationship.妆造类型   { color: #795548; thickness: 1px; }
