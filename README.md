@@ -22,40 +22,41 @@
 
 ## 快速开始
 
-### 0. 环境准备
+仓库已包含全部派生产物（41 列清洗数据、可视化 JSON、neo4j.dump），**克隆即可使用，无需重新清洗**。
+按需选择路径：
 
-- Python ≥ 3.10，安装依赖：`pip install -r requirements.txt`
-- 可选：Neo4j 5.x（Desktop 或 Server）、MySQL 8.x
-
-### 1. 数据清洗（必跑）
+### 路径 A：直接使用（零依赖，推荐大多数协作者）
 
 ```bash
-python scripts/01_extract_and_clean.py
-```
+# ① 看可视化：起任意静态服务器打开 dashboard（自带的 graph_data.json 即最新数据）
+cd dashboard && python -m http.server 8080      # 或 VS Code Live Server 等；浏览器访问 http://localhost:8080
 
-读取根目录 `5.21实体.xlsx` → 输出 `data/cleaned/inscriptions_clean.csv`（25 原始列 + 16 归一化列）。
-归一化列包括：`region_short`、`period`、`class_*`、`sect_main/sect_all`、`subject`、`religion_type`、
-`vow_main/vow_detail/vow_l2_norm`（祈愿编码 v3.0，含四恩三有）、`makeup_normalized`（妆造 v1.1）。
-内置"妆造-实践矛盾校验"，疑似矛盾清单输出到 `data/cleaned/makeup_practice_contradictions.txt` 供人工复核。
+# ② 做分析：直接读 data/cleaned/inscriptions_clean.csv（25 原始列 + 16 归一化列，含祈愿/妆造编码）
 
-### 2. 生成可视化数据
-
-```bash
-python scripts/02_generate_graph_json.py
-```
-
-输出 `dashboard/data/graph_data.json`（题记节点 + 地区/朝代/阶层/宗派/宗教/题材/祈愿/妆造八类枢纽 + 关系边）。
-
-### 3. 打开可视化
-
-```bash
-cd dashboard && python -m http.server 8080
-# 浏览器访问 http://localhost:8080
+# ③ 恢复图数据库：用 data/export/neo4j.dump（Neo4j Desktop → 创建 DBMS → Restore）
 ```
 
 3D 立体散点图：X 轴=朝代分期（隋→南宋）、Y 轴=社会阶层、Z 轴=地理辐射距离（以成都为原点）；
 节点内色=宗派、大小=组织单位（个人/家庭/社邑/群体）。支持：宗派多选筛选、年份双滑条、
 时期/地区/阶层/祈愿组合搜索定位、点击详情面板（含祈愿编码、妆造归一化）、交叉统计。
+
+### 路径 B：重新生成管线（仅维护者，三种情况才需要）
+
+改了 `5.21实体.xlsx` 数据、改了 `data/config/normalization_rules.json` 归一化规则、
+或需要验证管线可复现时：
+
+```bash
+# 0. 环境准备：Python ≥ 3.10，pip install -r requirements.txt（可选 Neo4j 5.x / MySQL 8.x）
+
+python scripts/01_extract_and_clean.py      # 清洗：5.21实体.xlsx → data/cleaned/inscriptions_clean.csv
+python scripts/02_generate_graph_json.py    # 可视化：→ dashboard/data/graph_data.json（八类枢纽 + 关系边）
+```
+
+`01` 产出 41 列：归一化列含 `region_short`、`period`、`class_*`、`sect_main/sect_all`、`subject`、
+`religion_type`、`vow_main/vow_detail/vow_l2_norm`（祈愿编码 v3.0，含四恩三有）、`makeup_normalized`
+（妆造 v1.1）；内置"妆造-实践矛盾校验"，疑似矛盾清单输出到
+`data/cleaned/makeup_practice_contradictions.txt` 供人工复核。
+改数据后的完整同步步骤见下文[数据变更流程](#数据变更流程)。
 
 ## Neo4j 同步（可选）
 
