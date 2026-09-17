@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """精确检查宗派字段的原始值"""
 import pandas as pd
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+
+df = pd.read_csv(str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv'), encoding='utf-8-sig')
 col = '宗派倾向(主宗派倾向；副宗派倾向）'
 
 # 写样本身份到文件
-with open(r'V:\图谱\data\cleaned\sect_samples.txt', 'w', encoding='utf-8') as f:
+with open(str(ROOT / 'data' / 'cleaned' / 'sect_samples.txt'), 'w', encoding='utf-8') as f:
     f.write("=== 所有唯一宗派倾向值 ===\n")
     for v, c in df[col].value_counts().items():
         f.write(f"  [{v}] = {c}\n")

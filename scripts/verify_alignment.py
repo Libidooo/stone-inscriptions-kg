@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Verify alignment between 5.7实体.xlsx and 题记原文.csv"""
 
+
 import pandas as pd, sys
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 sys.stdout.reconfigure(encoding='utf-8')
 
-df_excel = pd.read_excel(r'V:\图谱\5.7实体.xlsx')
-df_csv   = pd.read_csv(r'V:\图谱\题记原文.csv', encoding='utf-8-sig')
+df_excel = pd.read_excel(str(ROOT / '5.7实体.xlsx'))
+df_csv   = pd.read_csv(str(ROOT / '题记原文.csv'), encoding='utf-8-sig')
 
 print('=== Excel 题记序号 ===')
 print('min=%d, max=%d, count=%d, unique=%s' % (

@@ -4,6 +4,7 @@
 06_sync_codes_neo4j.py
 以 5.21实体 为基准，同步运行中 Neo4j 的编码层（2026-09 妆造分类建议 + 系统性排查）：
 
+
 1. 妆造（妆造类型归一化规则 v1.1）
    - 同步 i.makeup_normalized / i.raw_妆造（修复 #48/#218/#222 镌妆误标"缺失"，
      全库"缺失"统一改为"不详"）
@@ -24,6 +25,7 @@ import json
 import os
 import csv
 import argparse
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -37,7 +39,7 @@ def _db_auth():
     """凭据加载：环境变量 NEO4J_PASSWORD → data/config/db_local.json（已 gitignore）"""
     pw = os.environ.get('NEO4J_PASSWORD', '')
     if not pw:
-        cfg = Path(r'V:\图谱\data\config\db_local.json')
+        cfg = ROOT / 'data' / 'config' / 'db_local.json'
         if cfg.exists():
             pw = json.loads(cfg.read_text(encoding='utf-8')).get('password', '')
     if not pw:
@@ -45,7 +47,7 @@ def _db_auth():
     return ('neo4j', pw)
 
 AUTH = _db_auth()
-CSV_PATH = r'V:\图谱\data\cleaned\inscriptions_clean.csv'
+CSV_PATH = str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv')
 
 MISSING = {'信息不详', '无记载与残损难辨', '缺失', '无法判定', '不详', '未知', '空白', ''}
 

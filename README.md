@@ -1,227 +1,132 @@
-# 石刻造像题记知识图谱可视化系统
+# 石刻造像题记知识图谱
 
-## 概述
+基于四川地区佛教石窟造像题记（992 条）构建的知识图谱系统：**Python 数据管线 + Neo4j 图数据库 + MySQL + D3.js 3D 可视化**。
 
-基于四川地区佛教石窟铭文 Excel 数据，构建 Neo4j 图数据库 + D3.js 前端可视化系统。
+- 数据基准：`5.21实体.xlsx`（25 列：题记名称、时间、地点、造像者身份/阶层/性别、宗派倾向、宗教类型、实践行为/祈愿内容/造像原因编码等）
+- 编码规范：见 `标注规范/rules/`（祈愿内容 v3.0 含"四恩三有"、妆造类型 v1.1、阶层划分、宗派判定等 8 份规则）
+- 所有脚本路径均为仓库相对路径，克隆到任意目录即可运行
 
-## 数据源
-
-- `V:/图谱/5.21实体.xlsx`（同目录 `.csv` 为原始导出）— 当前数据基准（992 条题记，25 列）
-  - 2026-09 起以 5.21实体 为基准：祈愿内容编码升级为 v3.0 词表（对应《标注规范/rules/祈愿内容判定规则.md》，
-    E-03-01-01 普度众生关键词新增"四恩三有"；护国兴邦→国邦安宁、超度荐亡→超度往生、弘法传教→佛法弘传等重标）
-- `V:/图谱/5.7实体.xlsx` — 旧基准（存档，只读）
-- 包含：实体序号、题记名称、时间、公元纪年、地点、窟位、造像者人数、性别、所造佛像名称、出资者、造像者身份表述、阶层、社邑组织、实践行为编码、祈愿内容编码、造像原因编码、关联历史事件、经文、妆造类型、宗教类型、宗派倾向、备注
-
-## 项目结构
+## 仓库结构
 
 ```
-V:/图谱/
+├── 5.21实体.xlsx / .csv      # 当前数据基准（旧基准 5.7实体.xlsx 仅存档）
 ├── data/
-│   ├── cleaned/inscriptions_clean.csv  # 清洗后数据（41列：25原始 + 16归一化，含 vow_main/vow_detail/vow_l2_norm/makeup_normalized）
-│   └── config/normalization_rules.json  # 可配置的归一化规则
-├── scripts/
-│   ├── 01_extract_and_clean.py          # 数据清洗与归一化（读 5.21实体.xlsx，含妆造-实践矛盾校验）
-│   ├── 02_generate_graph_json.py        # 生成前端可视化 JSON（含祈愿/妆造枢纽）
-│   ├── 05_update_vows_neo4j.py          # 直连 Neo4j 重建祈愿层级（祈愿内容一/二/三级）
-│   ├── 06_sync_codes_neo4j.py           # 直连 Neo4j 同步妆造(v1.1)+实践/原因编码枢纽
-│   ├── 07_rename_chinese_neo4j.py       # Neo4j 标签/关系中文化（映射表见 data/config/neo4j_labels_zh.json）
-│   ├── 08_verify_rules_neo4j.py         # 全量核验：节点 vs 标注规范词表（报告在 data/cleaned/neo4j_rules_audit.txt）
-│   ├── import_to_neo4j.cypher           # Neo4j 全量导入脚本 v5.0（中文标签版）
-│   └── query_aggregate.cypher           # Cypher 聚合查询 Q1-Q14（中文标签版）
-├── dashboard/
-│   ├── index.html                       # 可视化主页面
-│   ├── js/main.js                       # D3.js 布局与交互（含祈愿筛选/详情）
-│   ├── css/style.css                    # 样式
-│   └── data/graph_data.json             # 预处理可视化数据（v4.0）
-├── README.md
+│   ├── cleaned/              # 清洗产物：inscriptions_clean.csv(41列)、核验报告、diff 记录
+│   ├── config/               # normalization_rules.json(归一化规则)、db_local.example.json(凭据模板)
+│   └── export/               # neo4j.dump、JoinMap 导出 JS
+├── scripts/                  # 全部管线脚本（见下文）
+├── dashboard/                # D3.js 3D 可视化（纯静态，无需构建）
+├── 标注规范/                  # 数据标注规则文档
 └── requirements.txt
 ```
 
-## 可视化布局
+## 快速开始
 
-| 维度 | 映射 |
-|------|------|
-| **大节点** = 地区 | 半径大小表示该地区题记总数 |
-| **X 轴** = 时间 | 隋 → 初唐 → 武周 → 盛唐 → 中唐 → 晚唐 → 五代 → 北宋 → 南宋 |
-| **Y 轴** = 社会阶层 | 工匠 → 信众 → 僧侣 → 士人 → 官员 |
-| **节点颜色（内圆）** = 宗派 | 观音/净土/弥勒/药师/地藏/密教/禅宗/华严/天台/无法判定 |
-| **节点描边（外圈）** = 宗教类型 | 佛教/道教/混合/儒教/无法判定（比宗派更上层的分类） |
-| **男左女右** | 同一坐标点，男性向左偏移，女性向右偏移 |
+### 0. 环境准备
 
-### 交互功能
+- Python ≥ 3.10，安装依赖：`pip install -r requirements.txt`
+- 可选：Neo4j 5.x（Desktop 或 Server）、MySQL 8.x
 
-- **Hover**：显示题记详情（名称、出资者、年代、宗派、阶层、祈愿内容）
-- **Click**：右侧详情面板（展示所有字段，含祈愿内容一级/二级编码）
-- **宗派筛选**：下拉多选框，只显示选中宗派
-- **祈愿筛选**：搜索面板下拉框，按祈愿一级编码（超度往生/现世福报/国邦安宁等）过滤
-- **时间滑条**：双值范围滑条，过滤公元纪年
-- **图例**：颜色→宗派 + 性别标识
-
-## 运行步骤
-
-> Python：本机 `V:` 盘受 Windows 应用控制策略限制无法运行 venv 内的原生 DLL，
-> 请直接使用系统 Python（依赖见 `requirements.txt`）。
-
-### 1. 数据清洗
+### 1. 数据清洗（必跑）
 
 ```bash
 python scripts/01_extract_and_clean.py
 ```
-输出: `data/cleaned/inscriptions_clean.csv`（含 `vow_main`/`vow_detail` 祈愿归一化列）
 
-### 2. 生成前端数据
+读取根目录 `5.21实体.xlsx` → 输出 `data/cleaned/inscriptions_clean.csv`（25 原始列 + 16 归一化列）。
+归一化列包括：`region_short`、`period`、`class_*`、`sect_main/sect_all`、`subject`、`religion_type`、
+`vow_main/vow_detail/vow_l2_norm`（祈愿编码 v3.0，含四恩三有）、`makeup_normalized`（妆造 v1.1）。
+内置"妆造-实践矛盾校验"，疑似矛盾清单输出到 `data/cleaned/makeup_practice_contradictions.txt` 供人工复核。
+
+### 2. 生成可视化数据
 
 ```bash
 python scripts/02_generate_graph_json.py
 ```
-输出: `dashboard/data/graph_data.json`（题记节点含 vow/vowDetail，另含祈愿枢纽节点与 HAS_VOW 边）
 
-### 3. Neo4j
+输出 `dashboard/data/graph_data.json`（题记节点 + 地区/朝代/阶层/宗派/宗教/题材/祈愿/妆造八类枢纽 + 关系边）。
 
-方式 A（增量更新已运行的库，推荐）：
-
-```bash
-python scripts/05_update_vows_neo4j.py           # 祈愿层级（密码经 NEO4J_PASSWORD 或 data/config/db_local.json 提供）
-python scripts/06_sync_codes_neo4j.py            # 妆造(v1.1) + 实践/原因编码枢纽
-# 两个脚本均支持 --dry-run 先查看计划
-```
-
-方式 B（全量重导）：
-
-1. 将 `data/cleaned/inscriptions_clean.csv` 复制到 Neo4j 的 `import` 目录
-   （本机 DBMS: `C:\ndb\Data\dbmss\dbms-03dc6b1b-ac18-4bb5-a870-722846996af6\import\`）
-2. 在 Neo4j Browser 中执行 `scripts/import_to_neo4j.cypher`
-3. 执行 `scripts/05_update_vows_neo4j.py` 补全祈愿二/三级层级（WishL2/WishL3）
-4. 执行 `scripts/query_aggregate.cypher` 进行查询（Q9-Q12 为祈愿内容分析）
-
-### 4. 启动可视化
-
-直接在浏览器打开 `dashboard/index.html`（通过本地 HTTP 服务器，如 `python -m http.server 8080`）
-
-## 归一化规则
-
-所有规则在 `data/config/normalization_rules.json` 中配置：
-
-| 规则 | 说明 |
-|------|------|
-| region_rules | 从地点提取短地名（大足、巴中、广元等） |
-| period_rules | 从公元纪年首年映射到朝代分期 |
-| class_rules | 从阶层+身份表述归一化到六大类 |
-| sect_rules | 从宗派倾向字段提取主宗派 |
-| vow_main / vow_detail / vow_l2_norm | 祈愿编码归一化：一级修正+主成分（vow_main）、二级原始（vow_detail）、二级映射到 v3.0 词表（vow_l2_norm，映射表见规则附录） |
-| makeup_normalized | 妆造类型归一化（01 脚本内置，规则 v1.1：新造/新造兼妆修/重妆/重修/不详；仅"镌妆"归新造兼妆修） |
-| 一致性校验 | 妆造-实践行为矛盾排查（01 脚本内置，输出 makeup_practice_contradictions.txt） |
-| sect_colors | 宗派→颜色映射 |
-| gender_colors | 性别→颜色映射 |
-
-## MySQL 数据库
-
-项目提供完整的 MySQL 支持，将 CSV 数据导入结构化关系型数据库：
-
-### 表结构
-
-`scripts/schema.sql` 定义了 11 张表：
-
-| 表 | 说明 |
-|----|------|
-| `inscriptions` | 题记主表（992条），含所有原始字段 + 归一化字段的外键引用 |
-| `regions` | 地区参考表 |
-| `periods` | 朝代分期参考表 |
-| `sects` | 宗派参考表 |
-| `religion_types` | 宗教类型参考表 |
-| `subjects` | 造像主体/题材参考表 |
-| `class_types` | 阶层类型（质的分类）参考表 |
-| `class_units` | 组织单位（量的分类）参考表 |
-| `class_labels` | 阶层复合标签参考表 |
-| `inscription_sects` | 题记↔宗派多对多关系表 |
-| `donors` | 出资者明细表（按分隔符拆分多人） |
-
-### 快速使用
+### 3. 打开可视化
 
 ```bash
-# 1. 在 MySQL 中执行建表
-mysql -u root -p < scripts/schema.sql
-
-# 2. 导入数据
-python scripts/export_to_mysql.py
-
-# 3. 或一步到位（清洗+导入）
-python scripts/01_extract_and_clean.py --mysql
+cd dashboard && python -m http.server 8080
+# 浏览器访问 http://localhost:8080
 ```
 
-> 注：本机未安装/未启动 MySQL 服务（3306 无响应），以上命令需在 MySQL 可用后执行；
-> `schema.sql` 的 `prayer_code_l1/l2` 已更新为祈愿 v3.0 词表注释，导出脚本会
-> 自动写入 5.21实体 的新编码，无需改动。
+3D 立体散点图：X 轴=朝代分期（隋→南宋）、Y 轴=社会阶层、Z 轴=地理辐射距离（以成都为原点）；
+节点内色=宗派、大小=组织单位（个人/家庭/社邑/群体）。支持：宗派多选筛选、年份双滑条、
+时期/地区/阶层/祈愿组合搜索定位、点击详情面板（含祈愿编码、妆造归一化）、交叉统计。
 
-### 常用分析查询
+## Neo4j 同步（可选）
 
-```sql
--- 各朝代各宗派题记数量
-SELECT p.name AS 朝代, s.name AS 宗派, COUNT(*) AS 数量
-FROM inscriptions i
-JOIN periods p ON i.period_id = p.id
-JOIN sects s ON i.sect_main_id = s.id
-GROUP BY p.name, s.name
-ORDER BY p.sort_order, 数量 DESC;
+脚本通过 HTTP API 直连本机 Neo4j（`127.0.0.1:7474`）。密码两种提供方式任选：
 
--- 各地区观音造像分布
-SELECT r.short_name AS 地区, COUNT(*) AS 数量
-FROM inscriptions i
-JOIN regions r ON i.region_id = r.id
-JOIN subjects s ON i.subject_id = s.id
-WHERE s.name = '观音'
-GROUP BY r.short_name ORDER BY 数量 DESC;
-
--- 官员出资的造像
-SELECT i.name AS 题记, i.deity AS 所造佛像, s.name AS 宗派
-FROM inscriptions i
-JOIN class_types ct ON i.class_type_id = ct.id
-JOIN sects s ON i.sect_main_id = s.id
-WHERE ct.name = '官员' ORDER BY i.year_start;
-
--- 各祈愿一级编码分布（v3.0 词表）
-SELECT prayer_code_l1 AS 祈愿一级, COUNT(*) AS 数量
-FROM inscriptions
-GROUP BY prayer_code_l1 ORDER BY 数量 DESC;
-
--- 四恩三有相关：祈愿二级编码含"四恩"的题记
-SELECT orig_id, name AS 题记, prayer_code_l1, prayer_code_l2
-FROM inscriptions
-WHERE prayer_code_l2 LIKE '%四恩%';
+```bash
+# 方式一：环境变量
+export NEO4J_PASSWORD='你的密码'        # Windows PowerShell: $env:NEO4J_PASSWORD='你的密码'
+# 方式二：本地配置文件（不会提交到 git）
+cp data/config/db_local.example.json data/config/db_local.json
+# 编辑 db_local.json 填入 password
 ```
 
-视图 `v_inscriptions_full` 提供了与清洗 CSV 完全一致的宽表输出，方便兼容现有前端和脚本。
+同步脚本（均支持 `--dry-run` 预览）：
 
-## 约束条件
+```bash
+python scripts/05_update_vows_neo4j.py    # 祈愿层级枢纽（祈愿内容一/二/三级）
+python scripts/06_sync_codes_neo4j.py     # 妆造(v1.1) + 实践行为/造像原因编码枢纽
+python scripts/08_verify_rules_neo4j.py   # 全量核验：节点 vs 标注规范词表
+```
 
-- 原始 Excel 数据只读不写
-- 所有归一化列以新列附加，原始列完整保留
+图采用中文标签/关系（`题记`、`祈愿内容一级`、`位于`、`下级编码` 等，映射表
+`data/config/neo4j_labels_zh.json`；新库首次中文化运行 `python scripts/07_rename_chinese_neo4j.py`）。
+可视化样式：把 `scripts/neo4j_browser_style.grass` 内容粘贴到 Neo4j Browser 的 `:style` 编辑器。
+
+**全新数据库**：将 `data/cleaned/inscriptions_clean.csv` 复制到 Neo4j 实例的 `import` 目录
+（Neo4j Desktop：DBMS → Open Folder → Import），在 Browser 依次执行
+`scripts/import_to_neo4j.cypher` → 上述 05/06 脚本；常用查询见 `scripts/query_aggregate.cypher`（Q1-Q14）。
+
+当前核验状态：一级维度 13/13、实践二级 30/30、造像原因二级 26/26 全部合规，无孤儿节点
+（报告：`data/cleaned/neo4j_rules_audit.txt`）。
+
+## MySQL 导入（可选）
+
+```bash
+mysql -u root -p < scripts/schema.sql        # 建库建表（11 张表 + 宽表视图）
+python scripts/export_to_mysql.py            # 从清洗 CSV 导入（连接信息在脚本头部 DB_CONFIG 修改）
+```
+
+`inscriptions` 主表含 `prayer_code_l1/l2`（祈愿编码）、`makeup_normalized`（妆造归一化）等字段；
+视图 `v_inscriptions_full` 输出与 CSV 一致的宽表。
+
+## 编码规范与归一化规则
+
+| 维度 | 规则文件 | 版本 |
+|------|---------|------|
+| 祈愿内容 | `标注规范/rules/祈愿内容判定规则.md`（附录含旧词→v3.0 映射表） | v3.0（含四恩三有） |
+| 妆造类型 | `标注规范/rules/妆造类型归一化规则.md`（仅"镌妆"归"新造兼妆修"） | v1.1 |
+| 实践行为 / 造像原因 | 对应规则文件（附录A/B 为数据在用扩展词表） | — |
+| 阶层 / 宗派 / 社邑 / 题记名称 | 对应规则文件 | — |
+
+归一化配置集中在 `data/config/normalization_rules.json`（地区/朝代/宗派/题材映射、祈愿 L2 映射表、
+扩展词表），改配置后重跑 01/02 即可生效。
+
+## 数据变更流程
+
+修改 `5.21实体.xlsx`（或换成新基准文件，同步改 `scripts/01_extract_and_clean.py` 的 `EXCEL_PATH`）后：
+
+```bash
+python scripts/01_extract_and_clean.py      # 清洗
+python scripts/02_generate_graph_json.py    # D3 数据
+python scripts/05_update_vows_neo4j.py      # Neo4j 祈愿层
+python scripts/06_sync_codes_neo4j.py       # Neo4j 其余编码层 + 妆造
+python scripts/08_verify_rules_neo4j.py     # 核验
+```
+
+辅助工具：`scripts/diff_521_vs_57.py`（新旧基准逐列 diff）、`scripts/validate_outputs.py` /
+`check_data_quality.py`（产物自检）、`scripts/extract_rule_vocab.py`（从规则文档提取词表，供 08 使用）。
+
+## 约定
+
+- 原始 Excel 数据只读不写；所有归一化列以新列附加，原始列完整保留
 - 缺失信息标记为"不详"或"未知"
-
-## Neo4j 中文标签与关系
-
-2026-09 起 Neo4j 图全部使用中文标签/关系（由 `07_rename_chinese_neo4j.py` 执行，
-映射表：`data/config/neo4j_labels_zh.json`）：
-
-| 英文（旧） | 中文（现） | 英文（旧） | 中文（现） |
-|-----------|----------|-----------|----------|
-| Inscription | 题记 | LOCATED_IN | 位于 |
-| Region | 地区 | FROM_PERIOD | 所属朝代 |
-| Period | 朝代分期 | HAS_CLASS | 阶层 |
-| Class / ClassType / ClassUnit | 阶层标签 / 阶层类型 / 组织单位 | HAS_TYPE / HAS_UNIT | 阶层类型 / 组织单位 |
-| Sect | 宗派 | BELONGS_TO | 所属宗派 |
-| Subject | 造像题材 | DEPICTS | 造像题材 |
-| ReligionType | 宗教类型 | HAS_RELIGION | 宗教类型 |
-| Gender | 性别 | HAS_GENDER | 性别 |
-| MakeupType | 妆造类型 | HAS_MAKEUP | 妆造类型 |
-| WishL1/L2/L3 | 祈愿内容一级/二级/三级 | HAS_WISH | 祈愿内容 |
-| PracticeL1/L2/L3 | 实践行为一级/二级/三级 | HAS_PRACTICE | 实践行为 |
-| CauseL1/L2/L3 | 造像原因一级/二级/三级 | HAS_CAUSE | 造像原因 |
-| — | — | HAS_SUBTYPE | 下级编码 |
-
-核验：`python scripts/08_verify_rules_neo4j.py` 输出各维度节点与
-《标注规范》词表的合规/偏差报告（`data/cleaned/neo4j_rules_audit.txt`）。
-当前状态：**全维度合规**（一级 13/13、实践二级 30/30、原因二级 26/26、无孤儿节点）。
-
-Browser 可视化样式：将 `scripts/neo4j_browser_style.grass` 内容粘贴到
-Neo4j Browser 的 `:style` 编辑器（一级枢纽=三色大胶囊，题记=小灰点，二/三级=渐小胶囊）。
+- 数据库凭据不入库：`data/config/db_local.json` 已被 `.gitignore` 忽略，只提交 example 模板

@@ -1,9 +1,12 @@
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 #!/usr/bin/env python3
 """检查数据质量：样本展示（适配 graph_data.json v4.0 list 结构）"""
 import json, sys
 sys.stdout.reconfigure(encoding='utf-8')
 
-with open(r'V:\图谱\dashboard\data\graph_data.json', 'r', encoding='utf-8') as f:
+
+with open(ROOT / 'dashboard' / 'data' / 'graph_data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 inscriptions = [n for n in data['nodes'] if n['type'] == 'inscription']

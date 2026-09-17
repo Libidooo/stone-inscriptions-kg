@@ -4,6 +4,7 @@
 05_update_vows_neo4j.py
 以 5.21实体（祈愿内容编码 v3.0，含四恩三有）为基准，更新运行中的 Neo4j：
 
+
 1. 重建祈愿层级枢纽 祈愿内容一级/二级/三级（2026-09 起标签中文化）
    - 二级编码 "普度众生 (上报四恩)" → 二级=普度众生, 三级=上报四恩
    - 层级连边 下级编码，最细层级 → 题记 连 祈愿内容
@@ -21,6 +22,7 @@ import json
 import os
 import csv
 import argparse
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -34,7 +36,7 @@ def _db_auth():
     """凭据加载：环境变量 NEO4J_PASSWORD → data/config/db_local.json（已 gitignore）"""
     pw = os.environ.get('NEO4J_PASSWORD', '')
     if not pw:
-        cfg = Path(r'V:\图谱\data\config\db_local.json')
+        cfg = ROOT / 'data' / 'config' / 'db_local.json'
         if cfg.exists():
             pw = json.loads(cfg.read_text(encoding='utf-8')).get('password', '')
     if not pw:
@@ -42,7 +44,7 @@ def _db_auth():
     return ('neo4j', pw)
 
 AUTH = _db_auth()
-CSV_PATH = r'V:\图谱\data\cleaned\inscriptions_clean.csv'
+CSV_PATH = str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv')
 
 MISSING = {'信息不详', '无记载与残损难辨', '缺失', '无法判定', '不详', '未知', '空白', ''}
 

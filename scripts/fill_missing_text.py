@@ -5,13 +5,15 @@ Fill missing 题记原文 entries from 5.2题记汇总.docx
 Source: 5.2题记汇总.txt (980 entries with explicit numbering) + 5.2题记汇总.docx (fuller content)
 """
 
+
 import re, pandas as pd, sys, docx, os
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 sys.stdout.reconfigure(encoding='utf-8')
 
 OUT_DIR = os.environ.get('EXTERNAL_OUT_DIR', '')  # 外部输出目录，经环境变量提供
 
 # ─── 1. Parse txt with explicit numbering ──────────────────────────
-txt_lines = open(r'V:\图谱\5.2题记汇总.txt', 'r', encoding='utf-8').read().split('\n')
+txt_lines = open(str(ROOT / '5.2题记汇总.txt'), 'r', encoding='utf-8').read().split('\n')
 
 cn_map = {'零':0,'〇':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'百':100,'千':1000}
 def cn2n(s):
@@ -152,7 +154,7 @@ def extract_from_docx(entry):
     return '\n'.join(texts) if texts else None
 
 # Read Excel for name/deity/location reference
-df_excel = pd.read_excel(r'V:\图谱\5.7实体.xlsx')
+df_excel = pd.read_excel(str(ROOT / '5.7实体.xlsx'))
 
 # Process all 20 missing entries
 results = {}

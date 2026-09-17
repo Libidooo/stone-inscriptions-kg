@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """分批导入数据到 joinmap"""
 import json, subprocess, time
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
+
 
 # 读取数据和 JS 注入脚本
-with open(r'V:\图谱\dashboard\data\graph_data.json', 'r', encoding='utf-8') as f:
+with open(str(ROOT / 'dashboard' / 'data' / 'graph_data.json'), 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 inscriptions = [n for n in data['nodes'] if n['type'] == 'inscription']

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 石刻造像题记知识图谱 - 数据清洗与归一化
-输入: V:/图谱/5.21实体.xlsx (保留所有原始列；祈愿内容编码 v3.0 含四恩三有)
-输出: V:/图谱/data/cleaned/inscriptions_clean.csv
+输入: 5.21实体.xlsx（仓库根，保留所有原始列；祈愿内容编码 v3.0 含四恩三有）
+输出: data/cleaned/inscriptions_clean.csv
+
 
 使用方法:
   python 01_extract_and_clean.py              # 输出 CSV + JSON
@@ -14,12 +15,13 @@ import json
 import sys
 import pandas as pd
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
 # ─── 配置 ───────────────────────────────────────────────────────────
-EXCEL_PATH = Path(r"V:\图谱\5.21实体.xlsx")
-CONFIG_PATH = Path(r"V:\图谱\data\config\normalization_rules.json")
-OUTPUT_CSV = Path(r"V:\图谱\data\cleaned\inscriptions_clean.csv")
-OUTPUT_JSON = Path(r"V:\图谱\data\cleaned\inscriptions_clean.json")
+EXCEL_PATH = ROOT / '5.21实体.xlsx'
+CONFIG_PATH = ROOT / 'data' / 'config' / 'normalization_rules.json'
+OUTPUT_CSV = ROOT / "data" / "cleaned" / "inscriptions_clean.csv"
+OUTPUT_JSON = ROOT / "data" / "cleaned" / "inscriptions_clean.json"
 
 MYSQL_CONFIG = {
     "host": "127.0.0.1",

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """检查宗教类型和宗派倾向字段的完整分布"""
 import pandas as pd
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+
+df = pd.read_csv(str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv'), encoding='utf-8-sig')
 
 print("=== 宗教类型 完整分布 ===")
 rel = df['宗教类型'].value_counts()

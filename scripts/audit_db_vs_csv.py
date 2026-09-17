@@ -1,18 +1,20 @@
 from pathlib import Path
 import json
 import os
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """对比 Neo4j 库内编码属性与 5.21 清洗 CSV 的差异（实践行为/造像原因/妆造）"""
 import sys, csv, requests
 sys.stdout.reconfigure(encoding='utf-8')
 
+
 URL = 'http://127.0.0.1:7474/db/neo4j/tx/commit'
 def _db_auth():
     """凭据加载：环境变量 NEO4J_PASSWORD → data/config/db_local.json（已 gitignore）"""
     pw = os.environ.get('NEO4J_PASSWORD', '')
     if not pw:
-        cfg = Path(r'V:\图谱\data\config\db_local.json')
+        cfg = ROOT / 'data' / 'config' / 'db_local.json'
         if cfg.exists():
             pw = json.loads(cfg.read_text(encoding='utf-8')).get('password', '')
     if not pw:
@@ -38,7 +40,7 @@ db = {r[0]: {'p1': r[1] or '', 'p2': r[2] or '', 'c1': r[3] or '', 'c2': r[4] or
       for r in run("MATCH (i:Inscription) RETURN i.id, i.raw_实践1, i.raw_实践2, "
                    "i.raw_原因1, i.raw_原因2, i.makeup_normalized, i.raw_妆造")}
 
-with open(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig') as f:
+with open(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv', encoding='utf-8-sig') as f:
     rows = list(csv.DictReader(f))
 
 diff_p, diff_c, diff_mk, diff_mraw = [], [], [], []

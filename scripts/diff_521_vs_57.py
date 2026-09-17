@@ -1,11 +1,14 @@
+from pathlib import Path
 import os
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 #!/usr/bin/env python3
 """对比 5.21实体（新基准）与 5.7实体.xlsx（旧基准）的差异"""
 import sys, pandas as pd
 sys.stdout.reconfigure(encoding='utf-8')
 
-NEW = os.path.join(os.path.expanduser('~'), 'Downloads', '5.21实体 - Sheet1.csv')
-OLD = r"V:\图谱\5.7实体.xlsx"
+
+NEW = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.expanduser('~'), 'Downloads', '5.21实体 - Sheet1.csv')
+OLD = str(ROOT / '5.7实体.xlsx')
 
 df_new = pd.read_csv(NEW, dtype=str, encoding='utf-8-sig').fillna('')
 df_old = pd.read_excel(OLD, sheet_name=0, dtype=str).fillna('')
@@ -57,7 +60,7 @@ for c, n in sorted(diff_rows_by_col.items(), key=lambda x: -x[1]):
         print(f"  ...（其余 {n-60} 行略，见完整输出文件）")
 
 # 完整明细写文件
-with open(r"V:\图谱\data\cleaned\diff_521_vs_57.txt", 'w', encoding='utf-8') as f:
+with open(str(ROOT / 'data' / 'cleaned' / 'diff_521_vs_57.txt'), 'w', encoding='utf-8') as f:
     for c, n in diff_rows_by_col.items():
         co, cn = c + '_old', c + '_new'
         mask = merged[co].str.strip() != merged[cn].str.strip()

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """检查年份异常值"""
 import json
-with open(r'V:\图谱\dashboard\data\graph_data.json', 'r', encoding='utf-8') as f:
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
+with open(str(ROOT / 'dashboard' / 'data' / 'graph_data.json'), 'r', encoding='utf-8') as f:
     data = json.load(f)
+
 
 print("=== 年份异常值 ===")
 for s in data['nodes']['inscriptions']:

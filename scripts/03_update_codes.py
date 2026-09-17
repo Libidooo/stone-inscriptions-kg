@@ -7,6 +7,8 @@ import os
 """
 import csv, re, json, sys, os
 from collections import OrderedDict
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
+
 
 # ============================================================
 # 1. 映射表定义（从标注规则文档提取）
@@ -677,8 +679,8 @@ def reunite_cause(val):
 def main():
     # ---- 3a. 读取 Update.csv ----
     update_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'Update.csv')
-    csv_path = r'V:\图谱\data\cleaned\inscriptions_clean.csv'
-    out_path = r'V:\图谱\data\cleaned\inscriptions_clean.csv'
+    csv_path = str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv')
+    out_path = str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv')
     
     print('Reading Update.csv...')
     update_rows = {}
@@ -841,7 +843,7 @@ def main():
             print(f'    [{c}] {v}')
     
     # ---- 3f. 生成 Neo4j 更新 CYPHER ----
-    cypher_path = r'V:\图谱\scripts\update_codes.cypher'
+    cypher_path = str(ROOT / 'scripts' / 'update_codes.cypher')
     print(f'\nGenerating CYPHER: {cypher_path}')
     
     # 使用 LOAD CSV 方式更新 Neo4j

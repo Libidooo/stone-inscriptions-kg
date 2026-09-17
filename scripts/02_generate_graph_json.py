@@ -4,6 +4,7 @@
 输入: 清洗后的 CSV (inscriptions_clean.csv)
 输出: dashboard/data/graph_data.json (力导向网络图格式)
 
+
 使用方法: python 02_generate_graph_json.py
 """
 
@@ -12,10 +13,11 @@ import re
 import pandas as pd
 from pathlib import Path
 from collections import defaultdict
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-CSV_PATH = Path(r"V:\图谱\data\cleaned\inscriptions_clean.csv")
-OUTPUT_JSON = Path(r"V:\图谱\dashboard\data\graph_data.json")
-CONFIG_PATH = Path(r"V:\图谱\data\config\normalization_rules.json")
+CSV_PATH = ROOT / "data" / "cleaned" / "inscriptions_clean.csv"
+OUTPUT_JSON = ROOT / "dashboard" / "data" / "graph_data.json"
+CONFIG_PATH = ROOT / 'data' / 'config' / 'normalization_rules.json'
 
 PERIOD_ORDER = ["隋", "初唐", "武周", "盛唐", "中唐", "晚唐", "五代", "北宋", "南宋", "不详"]
 CLASS_ORDER = ["工匠", "信众", "僧侣", "士人", "官员", "未知"]

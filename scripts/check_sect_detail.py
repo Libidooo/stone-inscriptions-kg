@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """精确检查宗派倾向字段的解析问题"""
 import pandas as pd, json
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+
+df = pd.read_csv(str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv'), encoding='utf-8-sig')
 col_sect = '宗派倾向(主宗派倾向；副宗派倾向）'
 
 # Check what normalize_sect outputs vs raw

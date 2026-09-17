@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """验证清洗输出"""
 import pandas as pd
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+
+df = pd.read_csv(str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv'), encoding='utf-8-sig')
 
 print("=== 原始阶层分布 ===")
 print(df['阶层'].value_counts().to_string())

@@ -2,6 +2,7 @@
 石刻造像题记知识图谱 - CSV → MySQL 导入脚本
 从清洗后的 CSV (inscriptions_clean.csv) 写入 MySQL
 
+
 使用方法:
   1. 先执行 schema.sql 创建数据库和表
   2. 修改下方 DB_CONFIG 连接信息
@@ -14,10 +15,11 @@ import json
 import pandas as pd
 from pathlib import Path
 from sqlalchemy import create_engine, text
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
 # ─── 配置 ───────────────────────────────────────────────────────────
-CSV_PATH = Path(r"V:\图谱\data\cleaned\inscriptions_clean.csv")
-CONFIG_PATH = Path(r"V:\图谱\data\config\normalization_rules.json")
+CSV_PATH = ROOT / "data" / "cleaned" / "inscriptions_clean.csv"
+CONFIG_PATH = ROOT / 'data' / 'config' / 'normalization_rules.json'
 
 DB_CONFIG = {
     "host": "127.0.0.1",

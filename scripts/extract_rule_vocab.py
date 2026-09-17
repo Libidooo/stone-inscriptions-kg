@@ -5,9 +5,11 @@ import re
 import sys
 import json
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
+
 
 sys.stdout.reconfigure(encoding='utf-8')
-RULES = Path(r'V:\图谱\标注规范\rules')
+RULES = ROOT / '标注规范' / 'rules'
 
 
 def extract_names(fname):
@@ -24,6 +26,6 @@ for fname in ['实践行为判定规则.md', '造像原因判定规则.md']:
     print(' ', vocab[fname])
     print()
 
-out = Path(r'V:\图谱\data\config\rule_vocab_extracted.json')
+out = ROOT / 'data' / 'config' / 'rule_vocab_extracted.json'
 out.write_text(json.dumps(vocab, ensure_ascii=False, indent=2), encoding='utf-8')
 print('写入', out)

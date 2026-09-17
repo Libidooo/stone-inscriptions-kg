@@ -1,8 +1,11 @@
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 #!/usr/bin/env python3
 """为 joinmap 生成批量导入JS"""
 import json, os
 
-with open(r'V:\图谱\dashboard\data\graph_data.json', 'r', encoding='utf-8') as f:
+
+with open(ROOT / 'dashboard' / 'data' / 'graph_data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 inscriptions = [n for n in data['nodes'] if n['type'] == 'inscription']
@@ -79,7 +82,7 @@ for ins in inscriptions:
 
 # 输出JS文件
 output = '\n'.join(js_parts)
-output_js = r'V:\图谱\data\export\import_joinmap.js'
+output_js = str(ROOT / 'data' / 'export' / 'import_joinmap.js')
 with open(output_js, 'w', encoding='utf-8') as f:
     f.write(output)
 

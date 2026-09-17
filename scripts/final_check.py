@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """最终验证：各字段分布"""
 import pandas as pd
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+
+df = pd.read_csv(str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv'), encoding='utf-8-sig')
 
 print("=== 宗派分布 (sect_main) ===")
 for v, c in df['sect_main'].value_counts().items():

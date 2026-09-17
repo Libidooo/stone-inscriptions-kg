@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """详细检查年份异常值的归属阶段"""
 import json
-with open(r'V:\图谱\dashboard\data\graph_data.json', 'r', encoding='utf-8') as f:
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
+with open(str(ROOT / 'dashboard' / 'data' / 'graph_data.json'), 'r', encoding='utf-8') as f:
     data = json.load(f)
+
 
 print("=== 年份<581 的题记 ===")
 for s in data['nodes']['inscriptions']:

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """审核数据库中的异常条目"""
 import pandas as pd
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+
+df = pd.read_csv(str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv'), encoding='utf-8-sig')
 
 print("=== 儒教条目 ===")
 rujia = df[df['宗教类型'].str.contains('儒教', na=False)]

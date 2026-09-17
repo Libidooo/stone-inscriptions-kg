@@ -4,6 +4,7 @@
 07_rename_chinese_neo4j.py
 将 Neo4j 节点标签改为"中文+层级编码"、关系类型改为中文，提升 Browser 可视化可读性。
 
+
 - 节点标签：WishL1 → 祈愿内容一级、PracticeL2 → 实践行为二级、Inscription → 题记 …
 - 关系类型：HAS_WISH → 祈愿内容、LOCATED_IN → 位于、HAS_SUBTYPE → 下级编码 …
 - 同步重建索引（题记.id / 题记.subject / 题记.prayer_l1）
@@ -18,6 +19,7 @@ import os
 import json
 import argparse
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -31,7 +33,7 @@ def _db_auth():
     """凭据加载：环境变量 NEO4J_PASSWORD → data/config/db_local.json（已 gitignore）"""
     pw = os.environ.get('NEO4J_PASSWORD', '')
     if not pw:
-        cfg = Path(r'V:\图谱\data\config\db_local.json')
+        cfg = ROOT / 'data' / 'config' / 'db_local.json'
         if cfg.exists():
             pw = json.loads(cfg.read_text(encoding='utf-8')).get('password', '')
     if not pw:
@@ -39,7 +41,7 @@ def _db_auth():
     return ('neo4j', pw)
 
 AUTH = _db_auth()
-MAPPING_PATH = Path(r'V:\图谱\data\config\neo4j_labels_zh.json')
+MAPPING_PATH = ROOT / 'data' / 'config' / 'neo4j_labels_zh.json'
 
 LABEL_MAP = {
     'Inscription':  '题记',

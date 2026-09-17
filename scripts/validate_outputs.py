@@ -1,11 +1,14 @@
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 #!/usr/bin/env python3
 """验证所有输出文件（适配 graph_data.json v4.0 list 结构）"""
 import json, os, sys
 sys.stdout.reconfigure(encoding='utf-8')
 
+
 # 1. 验证 graph_data.json
 print("=== Graph Data Validation ===")
-with open(r'V:\图谱\dashboard\data\graph_data.json', 'r', encoding='utf-8') as f:
+with open(ROOT / 'dashboard' / 'data' / 'graph_data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 print(f"Version: {data['version']}")
 nodes = data['nodes']
@@ -31,23 +34,23 @@ print(f"Stats.vows: {data['stats'].get('vows')}")
 
 # 2. 文件大小
 for path, label in [
-    (r'V:\图谱\data\cleaned\inscriptions_clean.csv', 'CSV'),
-    (r'V:\图谱\dashboard\data\graph_data.json', 'JSON'),
-    (r'V:\图谱\scripts\01_extract_and_clean.py', 'Script 1'),
-    (r'V:\图谱\scripts\02_generate_graph_json.py', 'Script 2'),
-    (r'V:\图谱\scripts\05_update_vows_neo4j.py', 'Script 5'),
-    (r'V:\图谱\scripts\import_to_neo4j.cypher', 'Cypher Import'),
-    (r'V:\图谱\scripts\query_aggregate.cypher', 'Cypher Query'),
-    (r'V:\图谱\dashboard\index.html', 'HTML'),
-    (r'V:\图谱\dashboard\js\main.js', 'JS'),
-    (r'V:\图谱\dashboard\css\style.css', 'CSS'),
+    (ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv', 'CSV'),
+    (ROOT / 'dashboard' / 'data' / 'graph_data.json', 'JSON'),
+    (ROOT / 'scripts' / '01_extract_and_clean.py', 'Script 1'),
+    (ROOT / 'scripts' / '02_generate_graph_json.py', 'Script 2'),
+    (ROOT / 'scripts' / '05_update_vows_neo4j.py', 'Script 5'),
+    (ROOT / 'scripts' / 'import_to_neo4j.cypher', 'Cypher Import'),
+    (ROOT / 'scripts' / 'query_aggregate.cypher', 'Cypher Query'),
+    (ROOT / 'dashboard' / 'index.html', 'HTML'),
+    (ROOT / 'dashboard' / 'js' / 'main.js', 'JS'),
+    (ROOT / 'dashboard' / 'css' / 'style.css', 'CSS'),
 ]:
     size = os.path.getsize(path)
-    print(f"  {label}: {path.split(os.sep)[-1]} ({size/1024:.1f} KB)")
+    print(f"  {label}: {Path(path).name} ({size/1024:.1f} KB)")
 
 # 3. 验证 CSV
 import pandas as pd
-df = pd.read_csv(r'V:\图谱\data\cleaned\inscriptions_clean.csv', encoding='utf-8-sig')
+df = pd.read_csv(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv', encoding='utf-8-sig')
 print(f"\nCSV rows: {len(df)}, columns: {len(df.columns)}")
 expected_cols = ['题记序号', '题记名称', '时间', '公元纪年', '地点', '窟位',
     '造像者人数', '性别', '所造佛像名称', '出资者', '造像者身份表述',

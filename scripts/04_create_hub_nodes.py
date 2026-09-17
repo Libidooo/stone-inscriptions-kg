@@ -10,6 +10,7 @@ import os
 import os, sys, json
 import requests
 
+
 # ============================================================
 # 1. 连接 Neo4j
 # ============================================================
@@ -19,7 +20,7 @@ def _db_auth():
     """凭据加载：环境变量 NEO4J_PASSWORD → data/config/db_local.json（已 gitignore）"""
     pw = os.environ.get('NEO4J_PASSWORD', '')
     if not pw:
-        cfg = Path(r'V:\图谱\data\config\db_local.json')
+        cfg = ROOT / 'data' / 'config' / 'db_local.json'
         if cfg.exists():
             pw = json.loads(cfg.read_text(encoding='utf-8')).get('password', '')
     if not pw:
@@ -57,8 +58,9 @@ def run_batch(stmts, timeout=60):
 # 2. 从 CSV 读取数据，构建层级关系
 # ============================================================
 import csv
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
-csv_path = r'V:\图谱\data\cleaned\inscriptions_clean.csv'
+csv_path = str(ROOT / 'data' / 'cleaned' / 'inscriptions_clean.csv')
 
 # 读取所有行
 rows = []

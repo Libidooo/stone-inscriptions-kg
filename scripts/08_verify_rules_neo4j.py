@@ -4,6 +4,7 @@
 08_verify_rules_neo4j.py
 全量核验：Neo4j 各维度节点是否严格遵照《标注规范/rules》词表。
 
+
 核验维度与基准：
 - 妆造类型           ← 妆造类型归一化规则 v1.1（5类）
 - 祈愿内容一级       ← 祈愿内容判定规则 v3.0（A-H 八类）
@@ -20,6 +21,7 @@ import sys
 import os
 import json
 from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -29,11 +31,12 @@ except ImportError:
     sys.exit("需要 requests")
 
 URL = 'http://127.0.0.1:7474/db/neo4j/tx/commit'
+
 def _db_auth():
     """凭据加载：环境变量 NEO4J_PASSWORD → data/config/db_local.json（已 gitignore）"""
     pw = os.environ.get('NEO4J_PASSWORD', '')
     if not pw:
-        cfg = Path(r'V:\图谱\data\config\db_local.json')
+        cfg = ROOT / 'data' / 'config' / 'db_local.json'
         if cfg.exists():
             pw = json.loads(cfg.read_text(encoding='utf-8')).get('password', '')
     if not pw:
@@ -63,8 +66,8 @@ VOCAB = {
 }
 
 # 从规则文件提取的完整编码名（供 L2/L3 参考）
-_extracted = json.loads(Path(r'V:\图谱\data\config\rule_vocab_extracted.json').read_text(encoding='utf-8'))
-_cfg = json.loads(Path(r'V:\图谱\data\config\normalization_rules.json').read_text(encoding='utf-8'))
+_extracted = json.loads((ROOT / 'data' / 'config' / 'rule_vocab_extracted.json').read_text(encoding='utf-8'))
+_cfg = json.loads((ROOT / 'data' / 'config' / 'normalization_rules.json').read_text(encoding='utf-8'))
 PRACTICE_ALL = set(_extracted['实践行为判定规则.md']) | set(_cfg['practice_ext_vocab']['l2'])
 CAUSE_ALL = set(_extracted['造像原因判定规则.md']) | set(_cfg['cause_ext_vocab']['l2'])
 PRACTICE_EXT_L1 = set(_cfg['practice_ext_vocab']['l1'])  # 实践行为判定规则 附录A 扩展一级
@@ -202,7 +205,7 @@ def main():
     else:
         emit('✓ 无孤儿节点')
 
-    out_path = Path(r'V:\图谱\data\cleaned\neo4j_rules_audit.txt')
+    out_path = ROOT / 'data' / 'cleaned' / 'neo4j_rules_audit.txt'
     out_path.write_text('\n'.join(report), encoding='utf-8')
     print(f'\n完整报告: {out_path}')
 

@@ -4,11 +4,13 @@ Merge 5.7 entities Excel with original inscription text from CSV.
 Output: $EXTERNAL_OUT_DIR/5.7实体含原文.{csv,xlsx}
 """
 
+
 import pandas as pd, os, sys
+ROOT = Path(__file__).resolve().parents[1]  # 仓库根目录
 sys.stdout.reconfigure(encoding='utf-8')
 
-excel_path = r'V:\图谱\5.7实体.xlsx'
-csv_path   = r'V:\图谱\题记原文.csv'
+excel_path = str(ROOT / '5.7实体.xlsx')
+csv_path   = str(ROOT / '题记原文.csv')
 out_dir = os.environ.get('EXTERNAL_OUT_DIR', '')
 
 df_excel = pd.read_excel(excel_path)
